@@ -18,7 +18,20 @@ export const getChatCompletion = async (
     'Content-Type': 'application/json',
     ...customHeaders,
   };
-  if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
+  
+  // dirty patch for my use case
+  // i feed two API keys into the string, separated by a comma
+  // the first one is OpenAI key, the second one is cerebras's.
+  if (apiKey) {
+    let apiKeys = apiKey.split(",");
+    if (config.model === 'llama-3.3-70b') {
+      apiKey = apiKeys[1];
+    } else {
+      apiKey = apiKeys[0];
+    }
+
+    headers.Authorization = `Bearer ${apiKey}`
+  }
 
   if (isAzureEndpoint(endpoint) && apiKey) {
     headers['api-key'] = apiKey;
@@ -67,7 +80,7 @@ export const getChatCompletion = async (
 
 export const getChatCompletionStream = async (
   endpoint: string,
-  messages: MessageInterface[],
+  messages: any[],
   config: ConfigInterface,
   apiKey?: string,
   customHeaders?: Record<string, string>,
@@ -77,7 +90,20 @@ export const getChatCompletionStream = async (
     'Content-Type': 'application/json',
     ...customHeaders,
   };
-  if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
+
+  // dirty patch for my use case
+  // i feed two API keys into the string, separated by a comma
+  // the first one is OpenAI key, the second one is cerebras's.
+  if (apiKey) {
+    let apiKeys = apiKey.split(",");
+    if (config.model === 'llama-3.3-70b') {
+      apiKey = apiKeys[1];
+    } else {
+      apiKey = apiKeys[0];
+    }
+
+    headers.Authorization = `Bearer ${apiKey}`
+  }
 
   if (isAzureEndpoint(endpoint) && apiKey) {
     headers['api-key'] = apiKey;
@@ -104,6 +130,22 @@ export const getChatCompletionStream = async (
       endpoint += path;
     }
   }
+
+  // for cerebras: simplify the message format
+  // remember that the repo is intended for my specific use case, so please don't complain :)
+  // yes i'm lazy enough not to write a full universal solution that suits everyone
+  let newmsg: any[] = [];
+  if (config.model === 'llama-3.3-70b') {
+    messages.forEach((element) => {
+      newmsg.push({role: element.role, content: element.content[0].text});
+    });
+
+    messages = newmsg;
+
+    // set endpoint for cerebras
+    endpoint = 'https://api.cerebras.ai/v1/chat/completions';
+  }
+
   endpoint = endpoint.trim();
   const response = await fetch(endpoint, {
     method: 'POST',
