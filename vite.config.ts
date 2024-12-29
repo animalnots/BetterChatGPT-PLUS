@@ -2,13 +2,21 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import wasm from 'vite-plugin-wasm';
 import topLevelAwait from 'vite-plugin-top-level-await';
+import mixPlugin from 'vite-plugin-mix';
 import dns from 'dns';
 
 dns.setDefaultResultOrder('verbatim');
 
+const mix = mixPlugin.default;
+
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), wasm(), topLevelAwait()],
+  plugins: [react(),
+    wasm(),
+    topLevelAwait(),
+    mix({
+      handler: './src/sync/sync.ts',
+    }),],
   resolve: {
     alias: {
       '@icon/': new URL('./src/assets/icons/', import.meta.url).pathname,

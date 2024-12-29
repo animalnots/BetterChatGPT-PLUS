@@ -3,6 +3,8 @@ import useStore from '@store/store';
 
 import NewChat from './NewChat';
 import NewFolder from './NewFolder';
+import Save from './Save';
+import Sync from './Sync';
 import ChatHistoryList from './ChatHistoryList';
 import MenuOptions from './MenuOptions';
 
@@ -72,6 +74,8 @@ const Menu = () => {
               <div className='flex gap-2'>
                 <NewChat />
                 <NewFolder />
+                <Save />
+                <Sync />
               </div>
               <ChatHistoryList />
               <MenuOptions />
