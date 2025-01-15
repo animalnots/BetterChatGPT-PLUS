@@ -6,7 +6,7 @@ export interface CustomModel {
   name: string;
   architecture: {
     instruct_type: null;
-    modality: 'text->text' | 'text+image->text';
+    modality: 'text->text' | 'text+image->text' | 'text->image' | 'text+image->image';
     tokenizer: string;
   };
   context_length: number;

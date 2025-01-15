@@ -1,8 +1,5 @@
-import { ShareGPTSubmitBodyInterface } from '@type/api';
-import {
-  ConfigInterface,
-  MessageInterface,
-} from '@type/chat';
+import { ShareGPTSubmitBodyInterface, DalleImageResponse } from '@type/api';
+import { ConfigInterface, MessageInterface } from '@type/chat';
 import { isAzureEndpoint } from '@utils/api';
 import { ModelOptions } from '@utils/modelReader';
 
@@ -159,4 +156,62 @@ export const submitShareGPT = async (body: ShareGPTSubmitBodyInterface) => {
   const { id } = response;
   const url = `https://shareg.pt/${id}`;
   window.open(url, '_blank');
+};
+
+export const generateImage = async (
+  endpoint: string,
+  prompt: string,
+  model: string,
+  size: '256x256' | '512x512' | '1024x1024' = '1024x1024',
+  apiKey?: string,
+  customHeaders?: Record<string, string>,
+  apiVersionToUse?: string
+): Promise<DalleImageResponse> => {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...customHeaders,
+  };
+  if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
+
+  if (isAzureEndpoint(endpoint) && apiKey) {
+    headers['api-key'] = apiKey;
+    console.log('model:', model);
+    console.log('endpoint before img:', endpoint);
+    const apiVersion = apiVersionToUse;
+
+    const path = `openai/deployments/${model}/images/generations${
+      apiVersion ? `?api-version=${apiVersion}` : ''
+    }`;
+
+    if (!endpoint.endsWith(path)) {
+      if (!endpoint.endsWith('/')) {
+        endpoint += '/';
+      }
+      endpoint += path;
+    }
+  }
+  endpoint = endpoint.trim();
+  console.log('endpoint img:', endpoint);
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      model,
+      prompt,
+      n: 1,
+      size,
+      response_format: 'url',
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error?.message || 'Failed to generate image');
+  }
+
+  const result = await response.json();
+  return {
+    url: result.data[0].url,
+    revised_prompt: result.data[0].revised_prompt
+  } as DalleImageResponse;
 };

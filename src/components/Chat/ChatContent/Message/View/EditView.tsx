@@ -356,25 +356,31 @@ const EditView = ({
         }`}
       >
         <div className='relative flex items-start'>
-          {modelTypes[model] == 'image' && (
-            <>
-              <button
-                className='absolute left-0 bottom-0  btn btn-secondary h-10 ml-[-1.2rem] mb-[-0.4rem]'
-                onClick={handleUploadButtonClick}
-                aria-label={'Upload Images'}
-              >
-                <div className='flex items-center justify-center gap-2'>
-                  <AttachmentIcon />
-                </div>
-              </button>
-            </>
-          )}
+          {(() => {
+            const modality = modelTypes[model]?.split('->')[0];
+            return modality?.includes('image') && (
+              <>
+                <button
+                  className='absolute left-0 bottom-0  btn btn-secondary h-10 ml-[-1.2rem] mb-[-0.4rem]'
+                  onClick={handleUploadButtonClick}
+                  aria-label={'Upload Images'}
+                >
+                  <div className='flex items-center justify-center gap-2'>
+                    <AttachmentIcon />
+                  </div>
+                </button>
+              </>
+            );
+          })()}
           {/* Place the AttachmentIcon directly over the textarea */}
           <textarea
             ref={textareaRef}
             className={`m-0 resize-none rounded-lg bg-transparent overflow-y-hidden focus:ring-0 focus-visible:ring-0 leading-7 w-full placeholder:text-gray-500/40 pr-10 ${
-              modelTypes[model] == 'image' ? 'pl-7' : ''
-            }`} // Adjust padding-right to make space for the icon
+              (() => {
+                const modality = modelTypes[model]?.split('->')[0];
+                return modality?.includes('image') ? 'pl-7' : '';
+              })()
+            }`}
             onChange={(e) => {
               _setContent((prev) => [
                 { type: 'text', text: e.target.value },
@@ -458,73 +464,75 @@ const EditViewButtons = memo(
 
     return (
       <div>
-        {modelTypes[model] == 'image' && (
-          <>
-            <div className='flex justify-center'>
-              <div className='flex gap-5'>
-                {_content.slice(1).map((image, index) => (
-                  <div
-                    key={index}
-                    className='image-container flex flex-col gap-2'
-                  >
-                    <img
-                      src={image.image_url.url}
-                      alt={`uploaded-${index}`}
-                      className='h-10'
-                    />
-                    <div className='flex flex-row gap-3'>
-                      <select
-                        onChange={(event) =>
-                          handleImageDetailChange(index, event.target.value)
-                        }
-                        title='Select image resolution'
-                        aria-label='Select image resolution'
-                        defaultValue={image.image_url.detail}
-                        style={{ color: 'black' }}
-                      >
-                        <option value='auto'>Auto</option>
-                        <option value='high'>High</option>
-                        <option value='low'>Low</option>
-                      </select>
-                      <button
-                        className='close-button'
-                        onClick={() => handleRemoveImage(index)}
-                        aria-label='Remove Image'
-                      >
-                        &times;
-                      </button>
+        {(() => {
+          const modality = modelTypes[model]?.split('->')[0];
+          return modality?.includes('image') && (
+            <>
+              <div className='flex justify-center'>
+                <div className='flex gap-5'>
+                  {_content.slice(1).map((image, index) => (
+                    <div
+                      key={index}
+                      className='image-container flex flex-col gap-2'
+                    >
+                      <img
+                        src={image.image_url.url}
+                        alt={`uploaded-${index}`}
+                        className='h-10'
+                      />
+                      <div className='flex flex-row gap-3'>
+                        <select
+                          onChange={(event) =>
+                            handleImageDetailChange(index, event.target.value)
+                          }
+                          title='Select image resolution'
+                          aria-label='Select image resolution'
+                          defaultValue={image.image_url.detail}
+                          style={{ color: 'black' }}
+                        >
+                          <option value='auto'>Auto</option>
+                          <option value='high'>High</option>
+                          <option value='low'>Low</option>
+                        </select>
+                        <button
+                          className='close-button'
+                          onClick={() => handleRemoveImage(index)}
+                          aria-label='Remove Image'
+                        >
+                          &times;
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-            <div className='flex justify-center mt-4'>
+              <div className='flex justify-center mt-4'>
+                <input
+                  type='text'
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder={t('enter_image_url_placeholder') as string}
+                  className='input input-bordered w-full max-w-xs text-gray-800 dark:text-white p-3  border-none bg-gray-200 dark:bg-gray-600 rounded-md m-0 w-full mr-0 h-10 focus:outline-none'
+                />
+                <button
+                  className='btn btn-neutral ml-2'
+                  onClick={handleImageUrlChange}
+                  aria-label={t('add_image_url') as string}
+                >
+                  {t('add_image_url')}
+                </button>
+              </div>
+              {/* Hidden file input */}
               <input
-                type='text'
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder={t('enter_image_url_placeholder') as string}
-                className='input input-bordered w-full max-w-xs text-gray-800 dark:text-white p-3  border-none bg-gray-200 dark:bg-gray-600 rounded-md m-0 w-full mr-0 h-10 focus:outline-none'
+                type='file'
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                onChange={handleFileChange}
+                multiple
               />
-              <button
-                className='btn btn-neutral ml-2'
-                onClick={handleImageUrlChange}
-                aria-label={t('add_image_url') as string}
-              >
-                {t('add_image_url')}
-              </button>
-            </div>
-            {/* Hidden file input */}
-            <input
-              type='file'
-              ref={fileInputRef}
-              style={{ display: 'none' }}
-              onChange={handleFileChange}
-              multiple
-            />
-          </>
-        )}
-
+            </>
+          );
+        })()}
         <div className='flex'>
           <div className='flex-1 text-center mt-2 flex justify-center'>
             {sticky && (

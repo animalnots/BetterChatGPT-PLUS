@@ -9,7 +9,7 @@ const CustomModelsManager = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newModelId, setNewModelId] = useState('');
   const [newModelName, setNewModelName] = useState('');
-  const [newModelModality, setNewModelModality] = useState<'text->text' | 'text+image->text'>('text->text');
+  const [newModelModality, setNewModelModality] = useState<'text->text' | 'text+image->text' | 'text->image' | 'text+image->image'>('text->text');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [contextLength, setContextLength] = useState(128000);
   const [maxCompletionTokens, setMaxCompletionTokens] = useState(16384);
@@ -105,11 +105,13 @@ const CustomModelsManager = () => {
                 </label>
                 <select
                   value={newModelModality}
-                  onChange={(e) => setNewModelModality(e.target.value as 'text->text' | 'text+image->text')}
+                  onChange={(e) => setNewModelModality(e.target.value as 'text->text' | 'text+image->text' | 'text->image' | 'text+image->image')}
                   className='w-full rounded bg-transparent text-black dark:text-white px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500'
                 >
-                  <option value='text->text'>{t('customModels.textOnly') || ''}</option>
-                  <option value='text+image->text'>{t('customModels.textAndImage') || ''}</option>
+                  <option value='text->text'>{t('customModels.textToText') || ''}</option>
+                  <option value='text+image->text'>{t('customModels.textAndImageToText') || ''}</option>
+                  <option value='text->image'>{t('customModels.textToImage') || ''}</option>
+                  <option value='text+image->image'>{t('customModels.textAndImageToImage') || ''}</option>
                 </select>
               </div>
 

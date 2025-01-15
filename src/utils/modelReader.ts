@@ -26,6 +26,7 @@ interface ModelData {
   per_request_limits: any;
   // TODO: Remove workaround once openrouter supports it;
   is_stream_supported: boolean; // custom field until better workaround or openrouter proper support
+  created: number;
 }
 
 interface ModelsJson {
@@ -33,6 +34,36 @@ interface ModelsJson {
 }
 
 const modelsJsonUrl = 'models.json';
+
+const imageModels: ModelsJson = {
+  data: [
+    {
+      id: "dall-e-2",
+      name: "DALL-E 2",
+      description: "Create realistic images and art from a description in natural language",
+      pricing: {
+        prompt: "0",
+        completion: "0",
+        image: "0.020",
+        request: "0"
+      },
+      context_length: 1000,
+      architecture: {
+        modality: "text->image",
+        tokenizer: "none",
+        instruct_type: null
+      },
+      top_provider: {
+        context_length: 1000,
+        is_moderated: true,
+        max_completion_tokens: null
+      },
+      per_request_limits: null,
+      created: new Date().getTime() / 1000,
+      is_stream_supported: false
+    }
+  ]
+};
 
 export const loadModels = async (): Promise<{
   modelOptions: string[];
@@ -45,6 +76,11 @@ export const loadModels = async (): Promise<{
   const response = await fetch(modelsJsonUrl);
   const modelsJson: ModelsJson = await response.json();
 
+  // Combine regular models with image models
+  const allModels = {
+    data: [...modelsJson.data, ...imageModels.data]
+  };
+
   const modelOptions: string[] = [];
   const modelMaxToken: { [key: string]: number } = {};
   const modelCost: ModelCost = {};
@@ -52,24 +88,36 @@ export const loadModels = async (): Promise<{
   const modelStreamSupport: { [key: string]: boolean } = {};
   const modelDisplayNames: { [key: string]: string } = {};
 
-  // Add custom models first
-  const customModels = useStore.getState().customModels;
-  customModels.forEach((model) => {
-    const modelId = model.id;
+  allModels.data.forEach((model) => {
+    const modelId = model.id.split('/').pop() as string;
     modelOptions.push(modelId);
     modelMaxToken[modelId] = model.context_length;
     modelCost[modelId] = {
       prompt: { price: parseFloat(model.pricing.prompt), unit: 1 },
       completion: { price: parseFloat(model.pricing.completion), unit: 1 },
-      image: { price: parseFloat(model.pricing.image), unit: 1 },
+      image: { price: 0, unit: 1 }, // default for no image models
     };
-    
-    modelTypes[modelId] = model.architecture.modality.includes('image') ? 'image' : 'text';
+    modelTypes[modelId] = model.architecture.modality;
+
+    // Detect image capabilities
+    if (parseFloat(model.pricing.image) > 0) {
+      modelCost[modelId].image = {
+        price: parseFloat(model.pricing.image ?? 0),
+        unit: 1,
+      };
+    }
+
+    // TODO: Remove workaround once openrouter supports it
+    if (modelId.includes('o1-') || model.architecture.modality.endsWith('->image')) {
+      model.is_stream_supported = false;
+    } else {
+      model.is_stream_supported = true;
+    }
+
     modelStreamSupport[modelId] = model.is_stream_supported;
-    console.log("init model:", model.name);
-    console.log("init model with stream support:", model.is_stream_supported);
-    modelDisplayNames[modelId] = `${model.name} ${i18next.t('customModels.customLabel', { ns: 'model' })}`;
+    modelDisplayNames[modelId] = modelId;
   });
+  
 
   // Prepend specific models
   const specificModels = [
@@ -82,7 +130,7 @@ export const loadModels = async (): Promise<{
         image: '0.01445',
         request: '0',
       },
-      type: 'text',
+      type: 'text->text',
       is_stream_supported: true,
     },
     {
@@ -94,7 +142,7 @@ export const loadModels = async (): Promise<{
         image: '0.01445',
         request: '0',
       },
-      type: 'text',
+      type: 'text->text',
       is_stream_supported: false,
     },
   ];
@@ -112,35 +160,23 @@ export const loadModels = async (): Promise<{
     modelDisplayNames[model.id] = model.id;
   });
 
-  modelsJson.data.forEach((model) => {
-    const modelId = model.id.split('/').pop() as string;
+  // Add custom models last
+  const customModels = useStore.getState().customModels;
+  customModels.forEach((model) => {
+    const modelId = model.id;
     modelOptions.push(modelId);
     modelMaxToken[modelId] = model.context_length;
     modelCost[modelId] = {
       prompt: { price: parseFloat(model.pricing.prompt), unit: 1 },
       completion: { price: parseFloat(model.pricing.completion), unit: 1 },
-      image: { price: 0, unit: 1 }, // default for no image models
+      image: { price: parseFloat(model.pricing.image), unit: 1 },
     };
-
-    // TODO: Remove workaround once openrouter supports it
-    if (modelId.includes('o1-')) {
-      model.is_stream_supported = false;
-    } else {
-      model.is_stream_supported = true;
-    }
-
-    // Detect image capabilities
-    if (parseFloat(model.pricing.image) > 0) {
-      modelTypes[modelId] = 'image';
-      modelCost[modelId].image = {
-        price: parseFloat(model.pricing.image),
-        unit: 1,
-      };
-    } else {
-      modelTypes[modelId] = 'text';
-    }
+    
+    modelTypes[modelId] = model.architecture.modality;
     modelStreamSupport[modelId] = model.is_stream_supported;
-    modelDisplayNames[modelId] = modelId;
+    console.log("init model:", model.name);
+    console.log("init model with stream support:", model.is_stream_supported);
+    modelDisplayNames[modelId] = `${model.name} ${i18next.t('customModels.customLabel', { ns: 'model' })}`;
   });
 
   // Sort modelOptions to prioritize custom models at the top, followed by gpt-4o models, then o1 models, and then other OpenAI models

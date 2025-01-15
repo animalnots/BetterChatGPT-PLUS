@@ -17,6 +17,11 @@ export interface EventSourceDataChoices {
   index: number;
 }
 
+export interface DalleImageResponse {
+  url: string;
+  revised_prompt?: string;
+}
+
 export interface ShareGPTSubmitBodyInterface {
   avatarUrl: string;
   items: {
