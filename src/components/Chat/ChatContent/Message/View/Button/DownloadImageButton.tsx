@@ -45,10 +45,10 @@ const DownloadImageButton = ({
     const success = await downloadImage(imageUrl);
     if (success) {
       setDownloaded(true);
-      toast.success(t('downloaded'), { autoClose: 1000 });
+      toast.success(t('downloaded') as string, { autoClose: 1000 });
       setTimeout(() => setDownloaded(false), 1000);
     } else {
-      toast.error(t('errors.failedToDownload'), { autoClose: 2000 });
+      toast.error(t('errors.failedToDownload') as string, { autoClose: 2000 });
     }
   };
 
@@ -57,7 +57,7 @@ const DownloadImageButton = ({
       onClick={handleClick}
       icon={downloaded ? <TickIcon /> : <DownloadIcon />}
       buttonProps={{
-        'aria-label': t('download'),
+        'aria-label': 'download image',
         className:
           'absolute top-2 right-12 p-1 rounded-md bg-gray-50 text-gray-800 dark:bg-gray-800 dark:text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity',
       }}

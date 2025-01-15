@@ -44,7 +44,7 @@ const CopyImageButton = ({
     const success = await copyImageToClipboard(imageUrl);
     if (success) {
       setCopied(true);
-      toast.success(t('copied'), { autoClose: 1000 });
+      toast.success(t('copied') as string, { autoClose: 1000 });
       setTimeout(() => setCopied(false), 1000);
     }
   };
@@ -54,7 +54,7 @@ const CopyImageButton = ({
       onClick={handleClick}
       icon={copied ? <TickIcon /> : <CopyIcon />}
       buttonProps={{
-        'aria-label': t('copy'),
+        'aria-label': 'copy image',
         className:
           'absolute top-2 right-2 p-1 rounded-md bg-gray-50 text-gray-800 dark:bg-gray-800 dark:text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity',
       }}
