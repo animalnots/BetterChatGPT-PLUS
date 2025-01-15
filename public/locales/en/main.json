@@ -1,6 +1,9 @@
 {
   "save": "Save",
   "generate": "Generate",
+  "copied": "Copied",
+  "download": "Download",
+  "downloaded": "Downloaded",
   "add_image_url": "Add image URL",
   "enter_image_url_placeholder": "Enter image URL",
   "cancel": "Cancel",

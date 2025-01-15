@@ -36,6 +36,8 @@ import CopyButton from './Button/CopyButton';
 import EditButton from './Button/EditButton';
 import DeleteButton from './Button/DeleteButton';
 import MarkdownModeButton from './Button/MarkdownModeButton';
+import CopyImageButton from './Button/CopyImageButton';
+import DownloadImageButton from './Button/DownloadImageButton';
 
 import CodeBlock from '../CodeBlock';
 import PopupModal from '@components/PopupModal';
@@ -119,9 +121,14 @@ const ContentView = memo(
     const handleCloseZoom = () => {
       setZoomedImage(null);
     };
+
+    const handleCopyImage = (url: string) => {
+      navigator.clipboard.writeText(url);
+    };
+
     const validImageContents = Array.isArray(content)
-    ? (content.slice(1).filter(isImageContent) as ImageContentInterface[])
-    : [];
+      ? (content.slice(1).filter(isImageContent) as ImageContentInterface[])
+      : [];
     return (
       <>
         <div className='markdown prose w-full md:max-w-full break-words dark:prose-invert dark share-gpt-message'>
@@ -159,12 +166,17 @@ const ContentView = memo(
         {validImageContents.length > 0 && (
           <div className='flex gap-4'>
             {validImageContents.map((image, index) => (
-              <div key={index} className='image-container'>
+              <div key={index} className='group relative'>
                 <img
                   src={image.image_url.url}
                   alt={`uploaded-${index}`}
                   className='h-20 cursor-pointer'
                   onClick={() => handleImageClick(image.image_url.url)}
+                />
+                <DownloadImageButton imageUrl={image.image_url.url} />
+                <CopyImageButton 
+                  onClick={() => handleCopyImage(image.image_url.url)} 
+                  imageUrl={image.image_url.url}
                 />
               </div>
             ))}
@@ -250,7 +262,7 @@ const p = memo(
       >,
       'ref'
     > &
-      ReactMarkdownProps
+    ReactMarkdownProps
   ) => {
     return <p className='whitespace-pre-wrap'>{props?.children}</p>;
   }
