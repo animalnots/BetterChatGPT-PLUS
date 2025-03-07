@@ -97,6 +97,84 @@ export const loadModels = async (): Promise<{
       type: 'text',
       is_stream_supported: false,
     },
+    {
+      architecture: {
+        instruct_type: null,
+        modality: "text->text",
+        tokenizer: "Other"
+      },
+      context_length: 200000,
+      created: 1738351721,
+      description: "OpenAI o3-mini is a cost-efficient language model optimized for STEM reasoning tasks, particularly excelling in science, mathematics, and coding. The model features three adjustable reasoning effort levels and supports key developer capabilities including function calling, structured outputs, and streaming, though it does not include vision processing capabilities.\n\nThe model demonstrates significant improvements over its predecessor, with expert testers preferring its responses 56% of the time and noting a 39% reduction in major errors on complex questions. With medium reasoning effort settings, o3-mini matches the performance of the larger o1 model on challenging reasoning evaluations like AIME and GPQA, while maintaining lower latency and cost.",
+      id: "o3-mini-low",
+      name: "OpenAI: o3 Mini (Low)",
+      per_request_limits: null,
+      pricing: {
+        completion: "0.0000044",
+        image: "0",
+        prompt: "0.0000011",
+        request: "0"
+      },
+      top_provider: {
+        context_length: 200000,
+        is_moderated: true,
+        max_completion_tokens: 100000
+      },
+      is_stream_supported: false,
+      type: 'text',
+    },
+    {
+      architecture: {
+        instruct_type: null,
+        modality: "text->text",
+        tokenizer: "Other"
+      },
+      context_length: 200000,
+      created: 1738351721,
+      description: "OpenAI o3-mini is a cost-efficient language model optimized for STEM reasoning tasks, particularly excelling in science, mathematics, and coding. The model features three adjustable reasoning effort levels and supports key developer capabilities including function calling, structured outputs, and streaming, though it does not include vision processing capabilities.\n\nThe model demonstrates significant improvements over its predecessor, with expert testers preferring its responses 56% of the time and noting a 39% reduction in major errors on complex questions. With medium reasoning effort settings, o3-mini matches the performance of the larger o1 model on challenging reasoning evaluations like AIME and GPQA, while maintaining lower latency and cost.",
+      id: "o3-mini-medium",
+      name: "OpenAI: o3 Mini (Medium)",
+      per_request_limits: null,
+      pricing: {
+        completion: "0.0000044",
+        image: "0",
+        prompt: "0.0000011",
+        request: "0"
+      },
+      top_provider: {
+        context_length: 200000,
+        is_moderated: true,
+        max_completion_tokens: 100000
+      },
+      is_stream_supported: false,
+      type: 'text',
+    },
+    {
+      architecture: {
+        instruct_type: null,
+        modality: "text->text",
+        tokenizer: "Other"
+      },
+      context_length: 200000,
+      created: 1738351721,
+      description: "OpenAI o3-mini is a cost-efficient language model optimized for STEM reasoning tasks, particularly excelling in science, mathematics, and coding. The model features three adjustable reasoning effort levels and supports key developer capabilities including function calling, structured outputs, and streaming, though it does not include vision processing capabilities.\n\nThe model demonstrates significant improvements over its predecessor, with expert testers preferring its responses 56% of the time and noting a 39% reduction in major errors on complex questions. With medium reasoning effort settings, o3-mini matches the performance of the larger o1 model on challenging reasoning evaluations like AIME and GPQA, while maintaining lower latency and cost.",
+      id: "o3-mini-high",
+      name: "OpenAI: o3 Mini (High)",
+      per_request_limits: null,
+      pricing: {
+        completion: "0.0000044",
+        image: "0",
+        prompt: "0.0000011",
+        request: "0"
+      },
+      top_provider: {
+        context_length: 200000,
+        is_moderated: true,
+        max_completion_tokens: 100000
+      },
+      is_stream_supported: false,
+      type: 'text',
+    }
   ];
 
   specificModels.forEach((model) => {
@@ -151,6 +229,8 @@ export const loadModels = async (): Promise<{
     const isGpt45B = b.includes('gpt-4.5');
     const isGpt4oA = a.startsWith('gpt-4o');
     const isGpt4oB = b.startsWith('gpt-4o');
+    const isO3A = a.startsWith('o3-');
+    const isO3B = b.startsWith('o3-');
     const isO1A = a.startsWith('o1-');
     const isO1B = b.startsWith('o1-');
     const isOpenAIA = a.startsWith('gpt-');
@@ -168,11 +248,15 @@ export const loadModels = async (): Promise<{
     if (isGpt4oA && !isGpt4oB) return -1;
     if (!isGpt4oA && isGpt4oB) return 1;
 
-    // If both are gpt-4o or neither, prioritize o1 models
+    // If both are gpt-4o or neither, prioritize o3 models
+    if (isO3A && !isO3B) return -1;
+    if (!isO3A && isO3B) return 1;
+
+    // If both are o3 or neither, prioritize o1 models
     if (isO1A && !isO1B) return -1;
     if (!isO1A && isO1B) return 1;
 
-    // If both are gpt-4o or o1 or neither, prioritize other OpenAI models
+    // If both are o1 or neither, prioritize other OpenAI models
     if (isOpenAIA && !isOpenAIB) return -1;
     if (!isOpenAIA && isOpenAIB) return 1;
 
