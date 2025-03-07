@@ -143,10 +143,12 @@ export const loadModels = async (): Promise<{
     modelDisplayNames[modelId] = modelId;
   });
 
-  // Sort modelOptions to prioritize custom models at the top, followed by gpt-4o models, then o1 models, and then other OpenAI models
+  // Sort modelOptions to prioritize gpt-4.5 models at the top, followed by custom models, gpt-4o models, o1 models, and then other OpenAI models
   modelOptions.sort((a, b) => {
     const isCustomA = customModels.some(m => m.id === a);
     const isCustomB = customModels.some(m => m.id === b);
+    const isGpt45A = a.includes('gpt-4.5');
+    const isGpt45B = b.includes('gpt-4.5');
     const isGpt4oA = a.startsWith('gpt-4o');
     const isGpt4oB = b.startsWith('gpt-4o');
     const isO1A = a.startsWith('o1-');
@@ -154,7 +156,11 @@ export const loadModels = async (): Promise<{
     const isOpenAIA = a.startsWith('gpt-');
     const isOpenAIB = b.startsWith('gpt-');
 
-    // Prioritize custom models
+    // Prioritize gpt-4.5 models
+    if (isGpt45A && !isGpt45B) return -1;
+    if (!isGpt45A && isGpt45B) return 1;
+
+    // Then prioritize custom models
     if (isCustomA && !isCustomB) return -1;
     if (!isCustomA && isCustomB) return 1;
 
