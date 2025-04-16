@@ -63,7 +63,7 @@ export const loadModels = async (): Promise<{
       completion: { price: parseFloat(model.pricing.completion), unit: 1 },
       image: { price: parseFloat(model.pricing.image), unit: 1 },
     };
-    
+
     modelTypes[modelId] = model.architecture.modality.includes('image') ? 'image' : 'text';
     modelStreamSupport[modelId] = model.is_stream_supported;
     console.log("init model:", model.name);
@@ -208,7 +208,9 @@ export const loadModels = async (): Promise<{
     }
 
     // Detect image capabilities
-    if (parseFloat(model.pricing.image) > 0) {
+    var inputModality = model.architecture.modality.split('->');
+    
+    if (parseFloat(model.pricing.image) > 0 || (inputModality && inputModality.length >= 1 && inputModality[0].includes('image'))) {
       modelTypes[modelId] = 'image';
       modelCost[modelId].image = {
         price: parseFloat(model.pricing.image),
@@ -225,8 +227,8 @@ export const loadModels = async (): Promise<{
   modelOptions.sort((a, b) => {
     const isCustomA = customModels.some(m => m.id === a);
     const isCustomB = customModels.some(m => m.id === b);
-    const isGpt45A = a.includes('gpt-4.5');
-    const isGpt45B = b.includes('gpt-4.5');
+    const isGpt45A = a.includes('gpt-4.');
+    const isGpt45B = b.includes('gpt-4.');
     const isGpt4oA = a.startsWith('gpt-4o');
     const isGpt4oB = b.startsWith('gpt-4o');
     const isO3A = a.startsWith('o3-');
