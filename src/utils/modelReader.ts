@@ -34,7 +34,25 @@ interface ModelsJson {
 
 const modelsJsonUrl = 'models.json';
 
-export const loadModels = async (): Promise<{
+// Recursively sort object keys and arrays by 'name' if present
+export function sortObjectKeys(obj: any): any {
+  if (Array.isArray(obj)) {
+    if (obj.length > 0 && typeof obj[0] === 'object' && 'name' in obj[0]) {
+      obj = [...obj].sort((a, b) => String(a.name).localeCompare(String(b.name)));
+    }
+    return obj.map(sortObjectKeys);
+  } else if (obj !== null && typeof obj === 'object') {
+    return Object.keys(obj).sort().reduce((sortedObj: any, key: string) => {
+      sortedObj[key] = sortObjectKeys(obj[key]);
+      return sortedObj;
+    }, {});
+  }
+  return obj;
+}
+
+export const loadModels = async (
+  autoFetchModels: boolean
+): Promise<{
   modelOptions: string[];
   modelMaxToken: { [key: string]: number };
   modelCost: ModelCost;
@@ -42,8 +60,38 @@ export const loadModels = async (): Promise<{
   modelStreamSupport: { [key: string]: boolean };
   modelDisplayNames: { [key: string]: string };
 }> => {
-  const response = await fetch(modelsJsonUrl);
-  const modelsJson: ModelsJson = await response.json();
+  console.log(`[modelReader] Loading models with autoFetchModels=${autoFetchModels}`);
+  let modelsJson: ModelsJson | null = null;
+
+  if (autoFetchModels) {
+    console.log('[modelReader] Attempting to fetch models from OpenRouter API...');
+    try {
+      const remoteResp = await fetch('https://openrouter.ai/api/v1/models');
+      if (remoteResp.ok) {
+        console.log('[modelReader] Successfully fetched models from OpenRouter API');
+        const remoteJson = await remoteResp.json();
+        modelsJson = sortObjectKeys(remoteJson);
+      } else {
+        console.log(`[modelReader] Failed to fetch from OpenRouter API: ${remoteResp.status} ${remoteResp.statusText}`);
+      }
+    } catch (e) {
+      console.log(`[modelReader] Error fetching from OpenRouter API: ${e instanceof Error ? e.message : String(e)}`);
+      // Ignore and fallback to local
+    }
+  } else {
+    console.log('[modelReader] Skipping OpenRouter API fetch (disabled in settings)');
+  }
+  
+  if (!modelsJson) {
+    console.log('[modelReader] Loading models from local models.json file');
+    const response = await fetch(modelsJsonUrl);
+    modelsJson = await response.json();
+  }
+
+  // Defensive: ensure modelsJson is not null for parsing logic
+  if (!modelsJson) {
+    throw new Error('Unable to load models.json from remote or local source.');
+  }
 
   const modelOptions: string[] = [];
   const modelMaxToken: { [key: string]: number } = {};

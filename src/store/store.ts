@@ -72,6 +72,7 @@ export const createPartializedState = (state: StoreState) => ({
   menuWidth: state.menuWidth,
   defaultImageDetail: state.defaultImageDetail,
   customModels: state.customModels,
+  autoFetchModels: state.autoFetchModels,
 });
 
 const useStore = create<StoreState>()(
