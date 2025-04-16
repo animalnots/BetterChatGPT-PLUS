@@ -17,6 +17,7 @@ import ClearConversation from '@components/Menu/MenuOptions/ClearConversation';
 import DisplayChatSizeToggle from './DisplayChatSizeToggle';
 import MigrationButton from './MigrationButton';
 import CustomModelsManager from './CustomModelsManager';
+import AutoFetchModelsToggle from './AutoFetchModelsToggle';
 
 const SettingsMenu = () => {
   const { t } = useTranslation();
@@ -54,6 +55,7 @@ const SettingsMenu = () => {
               <AdvancedModeToggle />
               <TotalTokenCostToggle />
               <DisplayChatSizeToggle />
+              <AutoFetchModelsToggle />
             </div>
             <ClearConversation />
             <PromptLibraryMenu />
