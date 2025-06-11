@@ -6,9 +6,11 @@ import ChatIcon from '@icon/ChatIcon';
 import CrossIcon from '@icon/CrossIcon';
 import DeleteIcon from '@icon/DeleteIcon';
 import EditIcon from '@icon/EditIcon';
+import CloneIcon from '@icon/CloneIcon';
 import TickIcon from '@icon/TickIcon';
 import useStore from '@store/store';
 import { formatNumber } from '@utils/chat';
+import { ChatInterface } from '@type/chat';
 
 const ChatHistoryClass = {
   normal:
@@ -130,6 +132,29 @@ const ChatHistory = React.memo(
       }
     };
 
+    const handleClone = (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      const chats = useStore.getState().chats;
+      if (chats) {
+        const index = chatIndex;
+        let title = `Copy of ${chats[index].title}`;
+        let i = 0;
+        while (chats.some((chat: { title: string }) => chat.title === title)) {
+          i += 1;
+          title = `Copy ${i} of ${chats[index].title}`;
+        }
+
+        const clonedChat = JSON.parse(JSON.stringify(chats[index]));
+        clonedChat.title = title;
+
+        const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
+        updatedChats.unshift(clonedChat);
+
+        setChats(updatedChats);
+        setCurrentChatIndex(useStore.getState().currentChatIndex + 1);
+      }
+    };
+
     useEffect(() => {
       if (inputRef && inputRef.current) inputRef.current.focus();
     }, [isEdit]);
@@ -212,6 +237,13 @@ const ChatHistory = React.memo(
                   aria-label='edit chat title'
                 >
                   <EditIcon />
+                </button>
+                <button
+                  className='p-1 hover:text-white'
+                  onClick={handleClone}
+                  aria-label='clone chat'
+                >
+                  <CloneIcon />
                 </button>
                 <button
                   className='p-1 hover:text-white'
