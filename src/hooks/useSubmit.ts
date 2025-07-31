@@ -206,6 +206,10 @@ const useSubmit = () => {
                 if (typeof curr === 'string') {
                   partial += curr;
                 } else {
+                  if (!curr.choices || !curr.choices[0] || !curr.choices[0].delta) {
+                    // cover the case where we get some element which doesnt have text data, e.g. usage stats
+                    return output;
+                  }
                   const content = curr.choices[0]?.delta?.content ?? null;
                   if (content) output += content;
                 }
