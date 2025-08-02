@@ -8,7 +8,8 @@
       "successfulImport": "Successfully imported!",
       "nothingImported": "No data has been imported",
       "unrecognisedDataFormat": "Unrecognised data format. Supported formats are: BetterGPT export, OpenAI export, OpenAI Playground (JSON)",
-      "chatsImported": "{{imported}} chats were imported out of {{total}}."
+      "chatsImported": "{{imported}} chats were imported out of {{total}}.",
+      "unsupportedModels": "Unsupported model(s): {{models}} are not available. Add them in Settings → Custom Models before importing."
     },
     "reduceMessagesSuccess": "{{count}} messages were reduced.",
     "partialImportMessages": "expected {{total}} messages but found {{count}}"

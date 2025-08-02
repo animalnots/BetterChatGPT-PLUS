@@ -13,6 +13,38 @@ import {
   validateExportV1,
 } from '@utils/import';
 
+import { modelOptions } from '@constants/modelLoader';
+
+// Helper to detect and warn about unknown model IDs referenced in imported chats
+const warnUnsupportedModels = (
+  chats: any[],
+  t: (key: string, opts?: any) => string
+) => {
+  const unsupportedModels = Array.from(
+    new Set(
+      chats
+        .map((c: any) => c?.config?.model)
+        .filter(
+          (id: string | undefined) =>
+            id && !modelOptions.includes(id) 
+        )
+    )
+  );
+
+  if (unsupportedModels.length > 0) {
+    toast.warning(
+      t('notifications.unsupportedModels', {
+        ns: 'import',
+        models: unsupportedModels.join(', '),
+      }) ||
+        `Unsupported model(s): ${unsupportedModels.join(', ')}. Please add them in Settings → Custom Models before importing.`,
+      { autoClose: 15000 }
+    );
+    return true;
+  }
+  return false;
+};
+
 import { ChatInterface, Folder, FolderCollection } from '@type/chat';
 import { ExportBase } from '@type/export';
 import { toast } from 'react-toastify';
@@ -175,6 +207,9 @@ const ImportChat = () => {
                     };
                   }
                 } else {
+                  // Validate unsupported model IDs and inform user
+                  warnUnsupportedModels(chatsToImport, t);
+
                   return {
                     success: false,
                     message: t('notifications.invalidChatsDataFormat', {
