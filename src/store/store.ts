@@ -71,6 +71,7 @@ export const createPartializedState = (state: StoreState) => ({
   displayChatSize: state.displayChatSize,
   menuWidth: state.menuWidth,
   defaultImageDetail: state.defaultImageDetail,
+  autoScroll: state.autoScroll,
   customModels: state.customModels,
 });
 

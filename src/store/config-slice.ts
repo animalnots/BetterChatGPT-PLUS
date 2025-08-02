@@ -22,6 +22,7 @@ export interface ConfigSlice {
   menuWidth: number;
   displayChatSize: boolean;
   defaultImageDetail: ImageDetail;
+  autoScroll: boolean;
   setOpenConfig: (openConfig: boolean) => void;
   setTheme: (theme: Theme) => void;
   setAutoTitle: (autoTitle: boolean) => void;
@@ -39,6 +40,7 @@ export interface ConfigSlice {
   setMenuWidth: (menuWidth: number) => void;
   setDisplayChatSize: (displayChatSize: boolean) => void;
   setDefaultImageDetail: (imageDetail: ImageDetail) => void;
+  setAutoScroll: (autoScroll: boolean) => void;
 }
 
 export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
@@ -59,6 +61,7 @@ export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
   menuWidth: _defaultMenuWidth,
   displayChatSize: _defaultDisplayChatSize,
   defaultImageDetail: _defaultImageDetail,
+  autoScroll: true,
   setOpenConfig: (openConfig: boolean) => {
     set((prev: ConfigSlice) => ({
       ...prev,
@@ -159,6 +162,12 @@ export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
     set((prev: ConfigSlice) => ({
       ...prev,
       defaultImageDetail: imageDetail,
+    }));
+  },
+  setAutoScroll: (autoScroll: boolean) => {
+    set((prev: ConfigSlice) => ({
+      ...prev,
+      autoScroll: autoScroll,
     }));
   },
 });

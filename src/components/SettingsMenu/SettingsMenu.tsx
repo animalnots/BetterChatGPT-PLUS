@@ -12,6 +12,7 @@ import InlineLatexToggle from './InlineLatexToggle';
 import PromptLibraryMenu from '@components/PromptLibraryMenu';
 import ChatConfigMenu from '@components/ChatConfigMenu';
 import EnterToSubmitToggle from './EnterToSubmitToggle';
+import AutoScrollToggle from './AutoScrollToggle';
 import TotalTokenCost, { TotalTokenCostToggle } from './TotalTokenCost';
 import ClearConversation from '@components/Menu/MenuOptions/ClearConversation';
 import DisplayChatSizeToggle from './DisplayChatSizeToggle';
@@ -50,6 +51,7 @@ const SettingsMenu = () => {
             <div className='flex flex-col gap-3'>
               <AutoTitleToggle />
               <EnterToSubmitToggle />
+              <AutoScrollToggle />
               <InlineLatexToggle />
               <AdvancedModeToggle />
               <TotalTokenCostToggle />

@@ -43,6 +43,7 @@ const ChatContent = () => {
   const advancedMode = useStore((state) => state.advancedMode);
   const generating = useStore.getState().generating;
   const hideSideMenu = useStore((state) => state.hideSideMenu);
+  const autoScroll = useStore((state) => state.autoScroll);
   const model = useStore((state) =>
     state.chats &&
     state.chats.length > 0 &&
@@ -99,11 +100,17 @@ const ChatContent = () => {
 
   const { error } = useSubmit();
 
+  // Custom scroller function to control auto-scroll behavior
+  const customScroller = ({ maxValue }: { maxValue: number; minValue: number; offsetHeight: number; scrollHeight: number; scrollTop: number }) => {
+    return autoScroll ? maxValue : 0;
+  };
+
   return (
     <div className='flex-1 overflow-hidden'>
       <ScrollToBottom
         className='h-full dark:bg-gray-800'
         followButtonClassName='hidden'
+        scroller={customScroller}
       >
         <ScrollToBottomButton />
         <div className='flex flex-col items-center text-sm dark:bg-gray-800'>

@@ -47,6 +47,7 @@
   "cloneChat": "Clone Chat",
   "cloned": "Cloned",
   "enterToSubmit": "Enter to submit",
+  "autoScroll": "Auto scroll to bottom",
   "submitPlaceholder": "Type a message or click [/] for prompts...",
   "stopNonStreamGenerationWarning": "Stopping generation is not recommended for non-stream models. Only use it if UI is stuck. Do you want to proceed?",
   "reduceMessagesWarning": "Reducing messages may result in data loss. It is recommended to download the chat in JSON format if you care about the data. Do you want to proceed?",
